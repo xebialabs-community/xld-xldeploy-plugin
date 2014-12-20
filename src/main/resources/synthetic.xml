@@ -1,0 +1,21 @@
+<!--
+
+    THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS
+    FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
+
+-->
+<synthetic xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.xebialabs.com/deployit/synthetic" xsi:schemaLocation="http://www.xebialabs.com/deployit/synthetic synthetic.xsd">
+ 	<type type="xldeploy.Server" inspectable="true" extends="generic.Container">
+        <property name="serverAddress" description="XL Deploy server address" />
+        <property name="serverPort" kind="integer" description="XL Deploy server port" default="4516" />
+        <property name="username" description="XL Deploy user name" />
+        <property name="password" password="true" description="XL Deploy user password" />
+        <property name="useHttps" kind="boolean" default="false" description="Connect to XL Deploy using XL Deploy connection" />
+        <property name="ignoreSSLWarnings" label="Ignore SSL warnings"  kind="boolean" default="false" description="Ignore SSL security warnings (accept all SSL certificates)." />
+	</type>
+	<type type="xldeploy.DeployedDarPackage" extends="xldeploy.BaseDarPackage" deployable-type="xldeploy.DarPackage" container-type="xldeploy.Server">
+		<generate-deployable type="xldeploy.DarPackage" extends="udm.BaseDeployable"
+            description="Dar export of deployment package"/>
+    </type>
+</synthetic>
