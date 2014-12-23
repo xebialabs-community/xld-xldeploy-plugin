@@ -27,7 +27,7 @@ Place the plugin JAR file into your `SERVER_HOME/plugins` directory.
 
 Following options are available:
 
-* *gradle clean assemble*: Will generate a jar that can be installed.
+* *gradlew clean assemble*: Will generate a jar that can be installed.
 
 ## XLD deployments
 
