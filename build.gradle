@@ -20,6 +20,7 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 version = '1.0.0'
 def xldeployHome = "$System.env.XLDEPLOY_HOME"
+def apiVersion = '4.0.2'
 
 repositories {
 	mavenLocal()
@@ -43,6 +44,8 @@ configurations {
 
 dependencies {
     compile fileTree(dir: "$xldeployHome/lib", include: ['*.jar'])
+    compile "com.xebialabs.overthere:overthere:2.4.5"
+    compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
     compile "org.apache.httpcomponents:httpcore:4.2.1"
     compile "org.apache.httpcomponents:httpclient:4.2.1"
     compile "org.apache.httpcomponents:httpmime:4.2.1"

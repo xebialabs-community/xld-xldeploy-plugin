@@ -1,8 +1,4 @@
 language: java
-notifications:
-  hipchat:
-    rooms:
-      secure: gNQkHj+fjYiz/5slfq7Yg4vXeWvSrI/PbYkFOjEaVeducGliiIkxZ05lnu67P8LADQJWN+RYTsX87VfhkrOlDcAExVcUwgjoJ5Bh/OgBKa2DsYLGa89e+J33O2T3ECvVRPN2ez4Tkc8VDDKtWVe0/vy6Pn+Nlw+I/ZeYAshvSbQ=
 deploy:
   provider: releases
   api_key:
@@ -13,3 +9,7 @@ deploy:
     all_branches: true
     tags: true
     repo: xebialabs-community/xld-xldeploy-plugin
+notifications:
+  hipchat:
+    rooms:
+      secure: BeTWK/zuLGB6F0M5S2dMMhlTAVrP8r4CNiFdCpog/v4A+e06BNvCz1lSxopN4qMGrVGu5XemZylcmS5uYlQr0KlGvedM7wNgij9QK/xPf7h3+hqOGKRq1FwBZHP3Xk/01k35UQXU6pimrCuIe6oDDM4Tnc5Eqb+/Ie0bWEOM2hA=
