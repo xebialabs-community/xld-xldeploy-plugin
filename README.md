@@ -25,9 +25,11 @@ Place the plugin JAR file into your `SERVER_HOME/plugins` directory.
 
 ## Build it
 
-Following options are available:
+Build needs some jar files from XLD installation. 
 
-* *gradlew clean assemble*: Will generate a jar that can be installed.
+`XLDEPLOY_HOME=/path/to/xld-installation gradlew clean assemble`
+
+This command generates a jar that can be installed.
 
 ## XLD deployments
 
