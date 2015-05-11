@@ -19,14 +19,14 @@ import com.xebialabs.deployit.plugin.api.udm.Deployed;
 public class ExportToXLDeployServerContributor {
 	
 	@Contributor
-	public void exportDarAndPushToServer(Deltas deltas, DeploymentPlanningContext ctx) {
+	static public void exportDarAndPushToServer(Deltas deltas, DeploymentPlanningContext ctx) {
 		List<Deployed<?, ?>> newOrModifiedProjectBundles = getNewOrModifiedProjectBundlesDeployed(deltas);
 		
 		for (Deployed<?, ?> projectBundle : newOrModifiedProjectBundles) {
 			ctx.addStep(new ExportDarAndPushToServerStep(projectBundle));
 		}
 	}
-	private List<Deployed<?, ?>> getNewOrModifiedProjectBundlesDeployed(Deltas deltas) {
+	static private List<Deployed<?, ?>> getNewOrModifiedProjectBundlesDeployed(Deltas deltas) {
 		List<Deployed<?, ?>> newOrModifiedProjectBundles = new ArrayList<Deployed<?, ?>>();
 		for (Delta delta : deltas.getDeltas()) {
 			Type actualDeployedType = getTypeOfDeployedOrPrevious(delta);
@@ -38,11 +38,11 @@ public class ExportToXLDeployServerContributor {
 		return newOrModifiedProjectBundles;
 	}
 	
-	private boolean operationIsCreateOrModifyOrNoop(Delta delta) {
+	static private boolean operationIsCreateOrModifyOrNoop(Delta delta) {
 		return delta.getOperation() == Operation.CREATE || delta.getOperation() == Operation.MODIFY || delta.getOperation() == Operation.NOOP;
 	}
 	
-	private Deployed<?, ?> getDeployedOrPrevious(Delta delta) {
+	static private Deployed<?, ?> getDeployedOrPrevious(Delta delta) {
 		if (delta.getOperation() == Operation.CREATE || delta.getOperation() == Operation.MODIFY || delta.getOperation() == Operation.NOOP) {
 			return delta.getDeployed();
 		} else {
@@ -50,7 +50,7 @@ public class ExportToXLDeployServerContributor {
 		}
 	}
 	
-	private Type getTypeOfDeployedOrPrevious(Delta delta) {
+	static private Type getTypeOfDeployedOrPrevious(Delta delta) {
 		return getDeployedOrPrevious(delta).getType();
 	}
 	

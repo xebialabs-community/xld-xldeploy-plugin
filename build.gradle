@@ -16,11 +16,11 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 
 group = 'com.xebialabs.deployit.community'
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-version = '1.0.0'
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+version = '1.1.0'
 def xldeployHome = "$System.env.XLDEPLOY_HOME"
-def apiVersion = '4.0.2'
+def apiVersion = '2015.2.1'
 
 repositories {
 	mavenLocal()
@@ -46,9 +46,9 @@ dependencies {
     compile fileTree(dir: "$xldeployHome/lib", include: ['*.jar'])
     compile "com.xebialabs.overthere:overthere:2.4.5"
     compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
-    compile "org.apache.httpcomponents:httpcore:4.2.1"
-    compile "org.apache.httpcomponents:httpclient:4.2.1"
-    compile "org.apache.httpcomponents:httpmime:4.2.1"
+    compile "org.apache.httpcomponents:httpcore:4.3.2"
+    compile "org.apache.httpcomponents:httpclient:4.3.3"
+    compile "org.apache.httpcomponents:httpmime:4.3.3"
     testCompile "org.hamcrest:hamcrest-core:1.2.1"
     testCompile "org.hamcrest:hamcrest-library:1.2.1"
 	testCompile "com.google.guava:guava:10.0.1"
