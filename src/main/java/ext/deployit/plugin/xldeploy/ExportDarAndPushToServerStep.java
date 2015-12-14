@@ -22,6 +22,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -40,6 +41,8 @@ import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyStore;
+
+import static javatests.TestSupport.assertThat;
 
 @SuppressWarnings("serial")
 public class ExportDarAndPushToServerStep implements Step {
@@ -155,11 +158,17 @@ public class ExportDarAndPushToServerStep implements Step {
 			    	}
 				}
 
-				/*
+
                 if(ensureSamePath){
+                    String appId = getParentId(packageId);
 					HttpGet httpGet = new HttpGet(protocol + server + ":"
-							+ port + "/deployit/repository/ci/" + ciPath)
-				}*/
+							+ port + "/deployit/repository/ci/" + appId);
+                    CloseableHttpResponse response = httpclient.execute(httpGet);
+                    if(response.getStatusLine().getStatusCode()!=200){
+                        ctx.logError("The package path [" + appId + "] does not exist on target instance.");
+                        return StepExitCode.FAIL;
+                    }
+				}
 
 				HttpPost httppost = new HttpPost(protocol + server + ":" + port +
 						"/deployit/package/upload/Package.dar");
