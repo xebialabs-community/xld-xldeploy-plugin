@@ -5,33 +5,6 @@
  */
 package ext.deployit.plugin.xldeploy;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
 import com.xebialabs.deployit.plugin.api.flow.ExecutionContext;
 import com.xebialabs.deployit.plugin.api.flow.Step;
 import com.xebialabs.deployit.plugin.api.flow.StepExitCode;
@@ -44,6 +17,29 @@ import com.xebialabs.overthere.OverthereConnection;
 import com.xebialabs.overthere.OverthereFile;
 import com.xebialabs.overthere.local.LocalConnection;
 import com.xebialabs.overthere.local.LocalFile;
+import org.apache.http.HttpEntity;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
+import org.apache.http.util.EntityUtils;
+
+import javax.net.ssl.SSLContext;
+import java.io.File;
+import java.io.FileInputStream;
+import java.security.KeyStore;
 
 @SuppressWarnings("serial")
 public class ExportDarAndPushToServerStep implements Step {
@@ -104,6 +100,8 @@ public class ExportDarAndPushToServerStep implements Step {
 			// Connect to XL Deploy instance
 			boolean useHttps = projectBundle.getContainer().getProperty("useHttps");
 			boolean ignoreSSLWarnings = projectBundle.getContainer().getProperty("ignoreSSLWarnings");
+			boolean ensureSamePath = projectBundle.getContainer().getProperty("ensureSamePath");
+
 			String server = projectBundle.getContainer().getProperty(
 					"serverAddress");
 			int port = projectBundle.getContainer().getProperty("serverPort");
@@ -111,101 +109,97 @@ public class ExportDarAndPushToServerStep implements Step {
 					"username");
 			String password = projectBundle.getContainer().getProperty(
 					"password");
+            String protocol ="http://";
 
-			DefaultHttpClient httpclient = null;
+            //DefaultHttpClient httpclient = null;
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            credsProvider.setCredentials(
+                    new AuthScope(server, port),
+                    new UsernamePasswordCredentials(username, password));
+            CloseableHttpClient httpclient = HttpClients.custom()
+                    .setDefaultCredentialsProvider(credsProvider)
+                    .build();
 			try {
 				if (useHttps) {
+                    protocol ="https://";
+
 			    	if(!ignoreSSLWarnings && System.getProperty("javax.net.ssl.trustStore")==null){
 			    		ctx.logError("No truststore defined, requiring remotely signed host. Otherwise enable ignore SSL warning setting.");
-			    		httpclient = new DefaultHttpClient();
+			    		//httpclient = new DefaultHttpClient();
 			    	}
-			    	else{					
-					    SSLContext sslCtx = SSLContext.getInstance("TLS");
-					    TrustManager[] trustManagers = null;
-					    SSLSocketFactory ssf = null;
-					    ClientConnectionManager ccm;
-					    
-					    if(ignoreSSLWarnings){
-							X509TrustManager tm = new X509TrustManager() {
-								public void checkClientTrusted(X509Certificate[] xcs,
-										String string) throws CertificateException {
-								}
-								public void checkServerTrusted(X509Certificate[] xcs,
-										String string) throws CertificateException {
-								}
-								public X509Certificate[] getAcceptedIssuers() {
-									return null;
-								}
-							};
-							trustManagers = new TrustManager[] { tm };
-							httpclient = new DefaultHttpClient();
-							sslCtx.init(null, trustManagers, null);
-							ssf = new SSLSocketFactory(sslCtx,
-									SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-							ccm = httpclient.getConnectionManager();						
+			    	else{
+                        SSLConnectionSocketFactory sslsf = null;
+                        KeyStore trustStore = null;
+                        TrustStrategy trustStrategy = null;
+
+                        if(ignoreSSLWarnings){
+                            trustStrategy = new TrustSelfSignedStrategy();
 					    }
 					    else{
 					    	String trustStoreFile = System.getProperty("javax.net.ssl.trustStore").toString();
 					    	String trustStorePW = System.getProperty("javax.net.ssl.trustStorePassword").toString();
-						    KeyStore trustStore = KeyStore.getInstance("jks");
+                            trustStore = KeyStore.getInstance("jks");
 						    trustStore.load(new FileInputStream(new File(trustStoreFile)), trustStorePW.toCharArray());
-						    TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-						    tmf.init(trustStore);
-						    trustManagers = tmf.getTrustManagers();
-						    sslCtx.init(null, trustManagers, new SecureRandom());
-						    ssf = new SSLSocketFactory(sslCtx);
-						    httpclient = new DefaultHttpClient();
-						    ccm = httpclient.getConnectionManager();
+
 						}
-	
-						SchemeRegistry sr = ccm.getSchemeRegistry();
-						sr.register(new Scheme("https", port, ssf));
-						
-						httpclient = new DefaultHttpClient(ccm, httpclient.getParams());
+                        SSLContext sslContext = SSLContexts.custom()
+                                .useProtocol("TLS")
+                                .loadTrustMaterial(trustStore, trustStrategy)
+                                .build();
+                        sslsf = new SSLConnectionSocketFactory(sslContext);
+
+                        httpclient = HttpClients.custom()
+                                .setSSLSocketFactory(sslsf)
+                                .setDefaultCredentialsProvider(credsProvider)
+                                .build();
 			    	}
 				}
-				else httpclient = new DefaultHttpClient();
 
-				Credentials credentials = new UsernamePasswordCredentials(
-						username, password);
-				httpclient.getCredentialsProvider().setCredentials(
-						new AuthScope(server, port), credentials);
-				String protocol ="http://";
-				if(useHttps) protocol ="https://";
-				HttpPost httppost = new HttpPost(protocol + server + ":"
-						+ port + "/deployit/package/upload/Package.dar");
+				/*
+                if(ensureSamePath){
+					HttpGet httpGet = new HttpGet(protocol + server + ":"
+							+ port + "/deployit/repository/ci/" + ciPath)
+				}*/
+
+				HttpPost httppost = new HttpPost(protocol + server + ":" + port +
+						"/deployit/package/upload/Package.dar");
 				File darFile = exportedDar.getFile();
-
-				MultipartEntity multiPartEntity = new MultipartEntity();
-
-				FileBody fileBody = new FileBody(darFile,
-						"application/octect-stream");
-				multiPartEntity.addPart("fileData", fileBody);
-
-				httppost.setEntity(multiPartEntity);
 
 				ctx.logOutput("Uploading file: " + darFile.getAbsolutePath());
 
+				FileBody bin = new FileBody(darFile, ContentType.MULTIPART_FORM_DATA);
+
+				HttpEntity reqEntity = MultipartEntityBuilder.create()
+						.addPart("fileData", bin)
+						.build();
+
+				httppost.setEntity(reqEntity);
+
 				ctx.logOutput("Executing request " + httppost.getRequestLine());
-				HttpResponse response = httpclient.execute(httppost);
-				ctx.logOutput("----------------------------------------");
-				ctx.logOutput(response.getStatusLine().toString());
-				HttpEntity resEntity = response.getEntity();
-				if (resEntity != null) {
-					//ctx.logOutput("Response content length: " + resEntity.getContentLength());
-					String responseString = EntityUtils.toString(resEntity);
-					ctx.logOutput("Response: " + responseString);
-					if(responseString.toLowerCase().contains("already imported")) return StepExitCode.SUCCESS;
+				CloseableHttpResponse response = httpclient.execute(httppost);
+				try {
+					ctx.logOutput("----------------------------------------");
+					ctx.logOutput(response.getStatusLine().toString());
+					HttpEntity resEntity = response.getEntity();
+					if (resEntity != null) {
+						String responseString = EntityUtils.toString(resEntity);
+						ctx.logOutput("Response: " + responseString);
+						if(responseString.toLowerCase().contains("already imported")) return StepExitCode.SUCCESS;
+					}
+					if(!response.getStatusLine().getReasonPhrase().equals("OK")) {
+						ctx.logError("DAR transfer was unsuccessful");
+						return StepExitCode.FAIL;
+					}
+					EntityUtils.consume(resEntity);
+				} finally {
+					response.close();
 				}
-				if (!response.getStatusLine().getReasonPhrase().equals("OK")) {
-					ctx.logError("DAR transfer was unsuccessful");
-					return StepExitCode.FAIL;
-				}
-				EntityUtils.consume(resEntity);
 			} catch (Exception e) {
 				ctx.logError("Caught exception in uploading DAR to server.", e);
 				return StepExitCode.FAIL;
-			}
+            } finally {
+                httpclient.close();
+            }
 
 		} catch (Exception e) {
 			ctx.logError("Caught exception in uploading DAR to server.", e);
@@ -248,5 +242,4 @@ public class ExportDarAndPushToServerStep implements Step {
 			}
 		}
 	}
-
 }

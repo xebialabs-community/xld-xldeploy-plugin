@@ -13,6 +13,7 @@
         <property name="password" password="true" description="XL Deploy user password" />
         <property name="useHttps" kind="boolean" default="false" description="Connect to XL Deploy using XL Deploy connection" />
         <property name="ignoreSSLWarnings" label="Ignore SSL warnings"  kind="boolean" default="false" description="Ignore SSL security warnings (accept all SSL certificates)." />
+        <property name="ensureSamePath" kind="boolean" default="false" description="Make sure the application exists on the target instance at the same path as the source instance." />
 	</type>
 	<type type="xldeploy.DeployedDarPackage" extends="xldeploy.BaseDarPackage" deployable-type="xldeploy.DarPackage" container-type="xldeploy.Server">
 		<generate-deployable type="xldeploy.DarPackage" extends="udm.BaseDeployable"
