@@ -143,8 +143,8 @@ public class ExportDarAndPushToServerStep implements Step {
 					    	String trustStorePW = System.getProperty("javax.net.ssl.trustStorePassword").toString();
                             trustStore = KeyStore.getInstance("jks");
 						    trustStore.load(new FileInputStream(new File(trustStoreFile)), trustStorePW.toCharArray());
-
 						}
+
                         SSLContext sslContext = SSLContexts.custom()
                                 .useProtocol("TLS")
                                 .loadTrustMaterial(trustStore, trustStrategy)

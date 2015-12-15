@@ -3,7 +3,7 @@ deploy:
   provider: releases
   api_key:
     secure: bX57hDvRMID51sXxGHpi/FTKcL7nnJWs0Szm8FkP77mcG5etEriB4/r6SIMfCu+gTaJ5I8BKQJ+iORajG4hFH2J4xbXI9qOb6KlfSiHHdLAhfJFFxw6KNfXUiELAznE9DL6hqBI+BDMmeBH7ngqkfMQT/h9ygw5FMn8UL7MfGVc=
-  file: build/libs/xld-xldeploy-1.0.0.jar
+  file: build/libs/xld-xldeploy-1.2.1.jar
   skip_cleanup: true
   on:
     all_branches: true

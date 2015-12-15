@@ -41,3 +41,12 @@ If a package version already exists on the target instance it will not fail the 
 The XL Deploy plugin adds synthetic properties to specific CIs in XL Deploy that are used to deploy to another XLD instance:
 * *xldeploy.DarPackage*: this deployable enables the deployment of the package to an XLD instance. No properties are needed.
 * *xldeploy.Server*: this defines the target XLD container. This can defined on any host (including a localhost) as it contains all information to establish a http(s) connection to the target XLD instance.
+
+## Options
+
+On the xldeploy.Server CI you can specify the following flags:
+* Use Https: check this when the target instance of XLD is using XLD.
+* Ignore SSL warnings: check this if XLD is running under a self-signed certificate that has not been added to the source instance' TrustStore. More infor about adding certificates to a truststore can be found here: * Ignore SSL warnings: check this if XLD is running under a self-signed certificate that has not been added to the source instance' TrustStore. More infor about adding certificates to a truststore can be found here: https://docs.xebialabs.com/xl-deploy/how-to/configure-the-cli-to-trust-the-xl-deploy-server-with-a-self-signed-certificate.html
+* Ensure Same Path: this is to ensure that the application path on the source instance also exists on the target instance. When uploading a package that Application (version) will be added to any existing Application already in the repository. If the Application doesn't already exist the Application will be added to the Applications root. This however means that permissions may not apply to that Application. This setting assumes that the permission structure is the same between source and target. Before importing the package it checks if the source path is available on the target instance. If it's not it fails the deployment.
+
+ 
