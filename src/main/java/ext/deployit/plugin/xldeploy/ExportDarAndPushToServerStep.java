@@ -40,6 +40,9 @@ import org.apache.http.util.EntityUtils;
 import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.KeyStore;
 
 import static javatests.TestSupport.assertThat;
@@ -112,7 +115,7 @@ public class ExportDarAndPushToServerStep implements Step {
 					"username");
 			String password = projectBundle.getContainer().getProperty(
 					"password");
-            String protocol ="http://";
+            String protocol ="http";
 
             //DefaultHttpClient httpclient = null;
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
@@ -124,7 +127,7 @@ public class ExportDarAndPushToServerStep implements Step {
                     .build();
 			try {
 				if (useHttps) {
-                    protocol ="https://";
+                    protocol ="https";
 
 			    	if(!ignoreSSLWarnings && System.getProperty("javax.net.ssl.trustStore")==null){
 			    		ctx.logError("No truststore defined, requiring remotely signed host. Otherwise enable ignore SSL warning setting.");
@@ -158,20 +161,35 @@ public class ExportDarAndPushToServerStep implements Step {
 			    	}
 				}
 
-
                 if(ensureSamePath){
                     String appId = getParentId(packageId);
-					HttpGet httpGet = new HttpGet(protocol + server + ":"
-							+ port + "/deployit/repository/ci/" + appId);
+					URI getUri = new URI(
+							protocol,
+                            null,
+							server,
+                            port,
+							"/deployit/repository/ci/" + appId,
+							null, null);
+					String endpoint = getUri.toString();
+                    //String endpoint = protocol + "://" + server + ":" + port + "/deployit/repository/ci/" + URLEncoder.encode(appId, java.nio.charset.StandardCharsets.UTF_8.toString());
+                    ctx.logOutput("Checking existence of package path [" + appId + "] with URL: " + endpoint);
+					HttpGet httpGet = new HttpGet(endpoint);
                     CloseableHttpResponse response = httpclient.execute(httpGet);
                     if(response.getStatusLine().getStatusCode()!=200){
-                        ctx.logError("The package path [" + appId + "] does not exist on target instance.");
+						ctx.logError("Existence of package path [" + appId + "] could not be determined on target instance.");
+						ctx.logError("Target instance returned HTTP Response: " + response.getStatusLine().getStatusCode());
+						ctx.logError(response.getStatusLine().getReasonPhrase());
                         return StepExitCode.FAIL;
                     }
 				}
-
-				HttpPost httppost = new HttpPost(protocol + server + ":" + port +
-						"/deployit/package/upload/Package.dar");
+				URI postUri = new URI(
+						protocol,
+						null,
+						server,
+						port,
+						"/deployit/package/upload/Package.dar",
+						null, null);
+				HttpPost httppost = new HttpPost(postUri.toString());
 				File darFile = exportedDar.getFile();
 
 				ctx.logOutput("Uploading file: " + darFile.getAbsolutePath());
