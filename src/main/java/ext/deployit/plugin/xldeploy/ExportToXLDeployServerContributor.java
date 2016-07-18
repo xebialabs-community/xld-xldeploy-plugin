@@ -17,61 +17,24 @@ import com.xebialabs.deployit.plugin.api.reflect.Type;
 import com.xebialabs.deployit.plugin.api.udm.Deployed;
 
 public class ExportToXLDeployServerContributor {
-	
+
 	@Contributor
 	static public void exportDarAndPushToServer(Deltas deltas, DeploymentPlanningContext ctx) {
-		List<Deployed<?, ?>> newOrModifiedProjectBundles = getNewOrModifiedProjectBundlesDeployed(deltas);
-		
-		for (Deployed<?, ?> projectBundle : newOrModifiedProjectBundles) {
-			ctx.addStep(new ExportDarAndPushToServerStep(projectBundle));
-		}
-	}
-	static private List<Deployed<?, ?>> getNewOrModifiedProjectBundlesDeployed(Deltas deltas) {
-		List<Deployed<?, ?>> newOrModifiedProjectBundles = new ArrayList<Deployed<?, ?>>();
 		for (Delta delta : deltas.getDeltas()) {
-			Type actualDeployedType = getTypeOfDeployedOrPrevious(delta);
-			if (Type.valueOf("xldeploy.DeployedDarPackage").equals(actualDeployedType) && operationIsCreateOrModifyOrNoop(delta)
-					&& Type.valueOf("xldeploy.Server").equals(getDeployedOrPrevious(delta).getContainer().getType())) {
-				newOrModifiedProjectBundles.add(getDeployedOrPrevious(delta));
+			if (delta.getOperation() == Operation.CREATE
+			 	 || delta.getOperation() == Operation.MODIFY
+				 || delta.getOperation() == Operation.NOOP) {
+				if (Type.valueOf("xldeploy.DeployedDarPackage").equals(delta.getDeployed().getType())
+					 && Type.valueOf("xldeploy.Server").equals(delta.getDeployed().getContainer().getType())) {
+					ctx.addStep(new ExportDarAndPushToServerStep(delta.getDeployed()));
+				}
+			} else if (delta.getOperation() == Operation.DESTROY) {
+				if (Type.valueOf("xldeploy.DeployedDarPackage").equals(delta.getPrevious().getType())
+					 && Type.valueOf("xldeploy.Server").equals(delta.getPrevious().getContainer().getType())) {
+					ctx.addStep(new RemoveDarFromServerStep(delta.getPrevious()));
+				}
 			}
-		}
-		return newOrModifiedProjectBundles;
-	}
-	
-	static private boolean operationIsCreateOrModifyOrNoop(Delta delta) {
-		return delta.getOperation() == Operation.CREATE || delta.getOperation() == Operation.MODIFY || delta.getOperation() == Operation.NOOP;
-	}
-	
-	static private Deployed<?, ?> getDeployedOrPrevious(Delta delta) {
-		if (delta.getOperation() == Operation.CREATE || delta.getOperation() == Operation.MODIFY || delta.getOperation() == Operation.NOOP) {
-			return delta.getDeployed();
-		} else {
-			return delta.getPrevious();
-		}
-	}
-	
-	static private Type getTypeOfDeployedOrPrevious(Delta delta) {
-		return getDeployedOrPrevious(delta).getType();
-	}
-	
-	/*
-	@Contributor
-	public void removeDarFromServer(Deltas deltas, DeploymentPlanningContext ctx) {
-		List<Deployed<?, ?>> tobeDestroyedProjectBundles = getToBeDestroyedProjectBundlesDeployedToEsa(deltas);
-		for (Deployed<?, ?> projectBundle : tobeDestroyedProjectBundles) {
-			ctx.addStep(new RemoveDarFromServerStep(projectBundle));
 		}
 	}
 
-	private List<Deployed<?, ?>> getToBeDestroyedProjectBundlesDeployedToEsa(Deltas deltas) {
-		List<Deployed<?, ?>> toBeDestroyedProjectBundles = new ArrayList<Deployed<?, ?>>();
-		for (Delta delta : deltas.getDeltas()) {
-			Type actualDeployedType = getTypeOfDeployedOrPrevious(delta);
-			if (Type.valueOf("xldeploy.DeployedDarPackage").equals(actualDeployedType) && Type.valueOf("xldeploy.Server").equals(getDeployedOrPrevious(delta).getContainer().getType()) && delta.getOperation()==Operation.DESTROY) {
-				toBeDestroyedProjectBundles.add(getDeployedOrPrevious(delta));
-			}
-		}
-		return toBeDestroyedProjectBundles;
-	}
-	*/
 }
