@@ -26,8 +26,8 @@ public class RemoveDarFromServerStep implements Step {
 		String host = projectBundle.getContainer().getProperty("serverAdress");
 		return "Removing dar from " + host;
 	}
-	
-	public StepExitCode execute(ExecutionContext ctx) throws Exception {		
+
+	public StepExitCode execute(ExecutionContext ctx) throws Exception {
 		//Initiate FTP parameters
 		String host = projectBundle.getContainer().getProperty("serverAdress");
 		ctx.logOutput("Removing dar from " + host);
