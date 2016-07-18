@@ -32,7 +32,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
@@ -41,11 +40,7 @@ import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.security.KeyStore;
-
-import static javatests.TestSupport.assertThat;
 
 @SuppressWarnings("serial")
 public class ExportDarAndPushToServerStep implements Step {
