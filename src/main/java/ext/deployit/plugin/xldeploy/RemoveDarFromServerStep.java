@@ -55,7 +55,7 @@ public class RemoveDarFromServerStep implements Step {
 		int port = projectBundle.getContainer().getProperty("serverPort");
 		String username = projectBundle.getContainer().getProperty("username");
 		String password = projectBundle.getContainer().getProperty("password");
-		String protocol ="http";
+		String protocol = useHttps ? "https" : "http";
 		String deployableId = projectBundle.getDeployable().getId();
 		String packageId = deployableId.substring(0, deployableId.lastIndexOf("/"));
 
@@ -66,8 +66,6 @@ public class RemoveDarFromServerStep implements Step {
 		CloseableHttpClient httpclient = HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
 		try {
 			if (useHttps) {
-				protocol ="https";
-
 				if (!ignoreSSLWarnings && System.getProperty("javax.net.ssl.trustStore")==null) {
 					ctx.logError("No truststore defined, requiring remotely signed host. Otherwise enable ignore SSL warning setting.");
 				} else {
