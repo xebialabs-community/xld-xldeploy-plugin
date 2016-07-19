@@ -5,16 +5,12 @@
  */
 package ext.deployit.plugin.xldeploy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.xebialabs.deployit.plugin.api.deployment.planning.Contributor;
 import com.xebialabs.deployit.plugin.api.deployment.planning.DeploymentPlanningContext;
 import com.xebialabs.deployit.plugin.api.deployment.specification.Delta;
 import com.xebialabs.deployit.plugin.api.deployment.specification.Deltas;
 import com.xebialabs.deployit.plugin.api.deployment.specification.Operation;
 import com.xebialabs.deployit.plugin.api.reflect.Type;
-import com.xebialabs.deployit.plugin.api.udm.Deployed;
 
 public class ExportToXLDeployServerContributor {
 

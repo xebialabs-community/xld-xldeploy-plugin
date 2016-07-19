@@ -1,106 +1,54 @@
-defaultTasks 'build'
-
-buildscript {
-  repositories {
-    jcenter()
-  }
-  dependencies {
-    classpath "nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0"
-  }
+import org.apache.tools.ant.filters.ReplaceTokens
+plugins {
+    id "com.github.hierynomus.license" version "0.12.1"
+    id "com.xebialabs.xldp" version "1.0.5"
+    id "com.xebialabs.xld.docker" version "1.0.7"
 }
 
-apply plugin: "com.github.hierynomus.license"
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 
-group = 'com.xebialabs.deployit.community'
+xldDocker {
+    version = '5.5.1.1'
+}
+
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
-version = '1.3.0'
-def xldeployHome = "$System.env.XLDEPLOY_HOME"
-def apiVersion = '2015.6.3'
+version="1.3.1"
+def apiVersion = '2016.1.2'
 
 repositories {
-	mavenLocal()
-	mavenCentral()
-	maven {
-	    credentials {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        credentials {
             username 'community-plugins'
             password 'community'
         }
-  		url 'http://nexus.xebialabs.com/nexus/content/repositories/releases'
+        url 'http://nexus.xebialabs.com/nexus/content/repositories/releases'
     }
 }
 
-configurations {
-	compile {
-		transitive = false
-	}
-	itestCompile { extendsFrom testCompile }
-    itestRuntime { extendsFrom itestCompile, testRuntime }
-}
-
 dependencies {
-    compile fileTree(dir: "$xldeployHome/lib", include: ['*.jar'])
-    compile "com.xebialabs.overthere:overthere:2.4.5"
+    compile fileTree(dir: "$xlDeployHome/lib", include: ['*.jar'])
     compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
-    compile "org.apache.httpcomponents:httpcore:4.3.2"
-    compile "org.apache.httpcomponents:httpclient:4.3.3"
     compile "org.apache.httpcomponents:httpmime:4.3.3"
-    testCompile "org.hamcrest:hamcrest-core:1.2.1"
-    testCompile "org.hamcrest:hamcrest-library:1.2.1"
-	testCompile "com.google.guava:guava:10.0.1"
-	testCompile "junit:junit-dep:4.10"
-	itestCompile fileTree(dir: "$xldeployHome/lib", include: ['*.jar'])
+    distBundle "org.apache.httpcomponents:httpmime:4.3.3"
 }
 
-sourceSets {
-        itest {
-            java {
-                srcDirs = ['src/test/itest']
-            }
-            compileClasspath = sourceSets.main.output + configurations.testCompile + configurations.itestCompile
-            runtimeClasspath = sourceSets.itest.output + configurations.itestCompile + sourceSets.main.output + configurations.itestRuntime
-        }
-}
 
-import org.apache.tools.ant.filters.*
-
-processResources {
+processResources.configure {
     filter ReplaceTokens, tokens: [
-        "project.version": project.property("version"),
-        "project.artifactId": project.property("name")
+            'project.version': version.toString(),
+            'project.name': rootProject.name
     ]
 }
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = "javadoc"
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar, javadocJar
-}
 
 license {
     header rootProject.file('src/main/license/xebialabs_community.license')
     strictCheck true
 }
-
-task itest(dependsOn: 'itestClasses',type: Test) {
-        testClassesDir = sourceSets.itest.output.classesDir
-        classpath = sourceSets.itest.runtimeClasspath
-}
-
-itest.configure {
-        useJUnit() {
-        }
-}
-
