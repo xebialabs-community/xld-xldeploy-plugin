@@ -5,6 +5,7 @@ plugins {
     id "com.xebialabs.xld.docker" version "1.0.7"
 }
 
+defaultTasks 'compileDocker'
 
 apply plugin: 'java'
 apply plugin: 'idea'
