@@ -1,0 +1,28 @@
+<!--
+
+    THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS
+    FOR A PARTICULAR PURPOSE. THIS CODE AND INFORMATION ARE NOT SUPPORTED BY XEBIALABS.
+
+-->
+<rules xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.xebialabs.com/xl-deploy/xl-rules" >
+
+    <rule name="xldeploy.DeployedDarPackage.Export" scope="deployed">
+        <conditions>
+            <type>xldeploy.DeployedDarPackage</type>
+            <operation>CREATE</operation>
+            <operation>MODIFY</operation>
+            <operation>NOOP</operation>
+        </conditions>
+        <steps>
+            <jython>
+                <order>50</order>
+                <description expression="true">"Transfer deployment package to XL Deploy server [%s:%s]" % (deployed.container.serverAddress, deployed.container.serverPort)</description>
+                <script-path>xldeploy/export_dar.py</script-path>
+            </jython>
+        </steps>
+    </rule>
+
+
+</rules>

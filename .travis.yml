@@ -1,7 +1,4 @@
 language: java
-install: true
-script:
-    - ./gradlew compileDocker
 deploy:
   provider: releases
   api_key:

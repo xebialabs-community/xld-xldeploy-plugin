@@ -17,14 +17,7 @@ public class ExportToXLDeployServerContributor {
 	@Contributor
 	static public void exportDarAndPushToServer(Deltas deltas, DeploymentPlanningContext ctx) {
 		for (Delta delta : deltas.getDeltas()) {
-			if (delta.getOperation() == Operation.CREATE
-			 	 || delta.getOperation() == Operation.MODIFY
-				 || delta.getOperation() == Operation.NOOP) {
-				if (Type.valueOf("xldeploy.DeployedDarPackage").equals(delta.getDeployed().getType())
-					 && Type.valueOf("xldeploy.Server").equals(delta.getDeployed().getContainer().getType())) {
-					ctx.addStep(new ExportDarAndPushToServerStep(delta.getDeployed()));
-				}
-			} else if (delta.getOperation() == Operation.DESTROY) {
+			if (delta.getOperation() == Operation.DESTROY) {
 				if (Type.valueOf("xldeploy.DeployedDarPackage").equals(delta.getPrevious().getType())
 					 && Type.valueOf("xldeploy.Server").equals(delta.getPrevious().getContainer().getType())) {
 					ctx.addStep(new RemoveDarFromServerStep(delta.getPrevious()));

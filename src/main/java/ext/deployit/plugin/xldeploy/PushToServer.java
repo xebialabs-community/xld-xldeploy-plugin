@@ -6,16 +6,7 @@
 package ext.deployit.plugin.xldeploy;
 
 import com.xebialabs.deployit.plugin.api.flow.ExecutionContext;
-import com.xebialabs.deployit.plugin.api.flow.Step;
 import com.xebialabs.deployit.plugin.api.flow.StepExitCode;
-import com.xebialabs.deployit.plugin.api.udm.Deployed;
-import com.xebialabs.deployit.repository.RepositoryService;
-import com.xebialabs.deployit.repository.RepositoryServiceHolder;
-import com.xebialabs.deployit.repository.WorkDir;
-import com.xebialabs.deployit.service.version.exporter.ExporterService;
-import com.xebialabs.overthere.OverthereConnection;
-import com.xebialabs.overthere.OverthereFile;
-import com.xebialabs.overthere.local.LocalConnection;
 import com.xebialabs.overthere.local.LocalFile;
 import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthScope;
@@ -43,58 +34,13 @@ import java.net.URI;
 import java.security.KeyStore;
 
 @SuppressWarnings("serial")
-public class ExportDarAndPushToServerStep implements Step {
+public class PushToServer {
 
-	private Deployed<?, ?> projectBundle;
-
-	public ExportDarAndPushToServerStep(Deployed<?, ?> projectBundle) {
-		this.projectBundle = projectBundle;
+	public PushToServer() {
 	}
 
-	public int getOrder() {
-		return 50;
-	}
-
-	public String getDescription() {
-		String address = projectBundle.getContainer().getProperty("serverAddress");
-		String port = projectBundle.getContainer().getProperty("serverPort").toString();
-		return "Transfer deployment package to XL Deploy server [" + address + ":" + port + "]";
-	}
-
-	public StepExitCode execute(ExecutionContext ctx) throws Exception {
-		String bundleId = projectBundle.getDeployable().getId();
-		String packageId = getParentId(bundleId);
-
-		OverthereConnection localConnection = null;
-		File createdTmpDir = null;
+	public StepExitCode execute(ExecutionContext ctx, String appId, LocalFile exportedDar, String server, int port, String username, String password, String protocol, boolean ignoreSSLWarnings, boolean ensureSamePath, boolean useHttps) throws Exception {
 		try {
-			// Export the package dar
-			ctx.logOutput("Exporting: " + packageId);
-			localConnection = (LocalConnection) LocalConnection.getLocalConnection();
-			RepositoryService repositoryService = RepositoryServiceHolder.getRepositoryService();
-			ExporterService exportService = new ExporterService(repositoryService);
-
-			OverthereFile workingDirectory = localConnection.getWorkingDirectory();
-			if (workingDirectory == null) {
-				createdTmpDir = createTmpDir(localConnection);
-				workingDirectory = new LocalFile((LocalConnection) localConnection, createdTmpDir);
-				localConnection.setWorkingDirectory(workingDirectory);
-			}
-			WorkDir workDir = new WorkDir((LocalFile) workingDirectory);
-			LocalFile exportedDar = exportService.exportDar(packageId, workDir);
-			ctx.logOutput("Completed export to file: " + exportedDar.getFile().getName());
-
-			// Connect to XL Deploy instance
-			boolean useHttps = projectBundle.getContainer().getProperty("useHttps");
-			boolean ignoreSSLWarnings = projectBundle.getContainer().getProperty("ignoreSSLWarnings");
-			boolean ensureSamePath = projectBundle.getContainer().getProperty("ensureSamePath");
-
-			String server = projectBundle.getContainer().getProperty("serverAddress");
-			int port = projectBundle.getContainer().getProperty("serverPort");
-			String username = projectBundle.getContainer().getProperty("username");
-			String password = projectBundle.getContainer().getProperty("password");
-			String protocol = useHttps ? "https" : "http";
-
 			CredentialsProvider credsProvider = new BasicCredentialsProvider();
 			credsProvider.setCredentials(new AuthScope(server, port), new UsernamePasswordCredentials(username, password));
 			CloseableHttpClient httpclient = HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
@@ -124,7 +70,6 @@ public class ExportDarAndPushToServerStep implements Step {
 				}
 
 				if (ensureSamePath) {
-					String appId = getParentId(packageId);
 					URI getUri = new URI(protocol, null, server, port, "/deployit/repository/ci/" + appId, null, null);
 					String endpoint = getUri.toString();
 					ctx.logOutput("Checking existence of package path [" + appId + "] with URL: " + endpoint);
@@ -178,40 +123,10 @@ public class ExportDarAndPushToServerStep implements Step {
 		} catch (Exception e) {
 			ctx.logError("Caught exception in uploading DAR to server.", e);
 			return StepExitCode.FAIL;
-		} finally {
-			removeTmpDir(createdTmpDir);
 		}
+
 		ctx.logOutput("DAR transfer completed successfully");
 		return StepExitCode.SUCCESS;
 	}
 
-	private String getParentId(String id) {
-		return id.substring(0, id.lastIndexOf("/"));
-	}
-
-	private File createTmpDir(OverthereConnection localConnection) {
-		String property = "java.io.tmpdir";
-		String tempDir = System.getProperty(property);
-		String pathSeparator = localConnection.getHostOperatingSystem().getFileSeparator();
-		String workDir = tempDir + pathSeparator + "work" + System.currentTimeMillis();
-		File workDirAsFile = new File(workDir);
-		workDirAsFile.mkdir();
-		return workDirAsFile;
-	}
-
-	private void removeTmpDir(File createdTmpDir) {
-		if (createdTmpDir != null) {
-			if (createdTmpDir.isFile()) {
-				createdTmpDir.delete();
-			} else if (createdTmpDir.isDirectory()) {
-				File[] files = createdTmpDir.listFiles();
-				if (files != null) {
-					for (File file : files) {
-						removeTmpDir(file);
-					}
-				}
-				createdTmpDir.delete();
-			}
-		}
-	}
 }
