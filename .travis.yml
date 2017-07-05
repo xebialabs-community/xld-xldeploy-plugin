@@ -2,8 +2,8 @@ language: java
 deploy:
   provider: releases
   api_key:
-    secure: bX57hDvRMID51sXxGHpi/FTKcL7nnJWs0Szm8FkP77mcG5etEriB4/r6SIMfCu+gTaJ5I8BKQJ+iORajG4hFH2J4xbXI9qOb6KlfSiHHdLAhfJFFxw6KNfXUiELAznE9DL6hqBI+BDMmeBH7ngqkfMQT/h9ygw5FMn8UL7MfGVc=
-  file: build/libs/xld-xldeploy-6.0.0.jar
+    secure: Bmfxd6mDWP9ldJdkjdhuMqsbytM1X5guIs4H30LycmgaQDSKaaOXbpqCtIIqCj8NBXNH0vR5tQybwOe1Vu9Y7K9XjO9AffjbAgfqApHZIkgcbiDmwl8cj4pjWaJjIK5TKBUEwsnQD4GHc5OWfMleuTdA9DdfktUkjD+Q7wp+hbs=
+  file: build/distributions/xld-xldeploy-plugin.xldp
   skip_cleanup: true
   on:
     all_branches: true
