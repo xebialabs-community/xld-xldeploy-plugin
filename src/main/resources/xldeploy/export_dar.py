@@ -15,8 +15,6 @@ from ext.deployit.plugin.xldeploy import PushToServer
 from java.io import File
 from java.lang import System
 
-import sys
-
 def get_parent_id(id):
     parent_id, name = id.rsplit("/", 1)
     return parent_id
@@ -73,10 +71,6 @@ try:
     protocol = "https" if use_https else "http"
 
     push_to_server = PushToServer()
-    exit_code = push_to_server.execute(context, get_parent_id(package_id), exported_dar, server, port, username, password, protocol, ignoreSSLWarnings, ensureSamePath, use_https)
+    result = push_to_server.execute(context, get_parent_id(package_id), exported_dar, server, port, username, password, protocol, ignoreSSLWarnings, ensureSamePath, use_https)
 finally:
     remove_tmp_dir(created_tmp_dir)
-
-if exit_code == StepExitCode.FAIL:
-    sys.exit(1)
-sys.exit(0)
