@@ -3,7 +3,7 @@ deploy:
   provider: releases
   api_key:
     secure: Bmfxd6mDWP9ldJdkjdhuMqsbytM1X5guIs4H30LycmgaQDSKaaOXbpqCtIIqCj8NBXNH0vR5tQybwOe1Vu9Y7K9XjO9AffjbAgfqApHZIkgcbiDmwl8cj4pjWaJjIK5TKBUEwsnQD4GHc5OWfMleuTdA9DdfktUkjD+Q7wp+hbs=
-  file: build/distributions/xld-xldeploy-plugin.xldp
+  file: build/distributions/xld-xldeploy-plugin-6.0.0.xldp
   skip_cleanup: true
   on:
     all_branches: true
