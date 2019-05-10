@@ -10,6 +10,5 @@ deploy:
     tags: true
     repo: xebialabs-community/xld-xldeploy-plugin
 notifications:
-  hipchat:
-    rooms:
-      secure: BeTWK/zuLGB6F0M5S2dMMhlTAVrP8r4CNiFdCpog/v4A+e06BNvCz1lSxopN4qMGrVGu5XemZylcmS5uYlQr0KlGvedM7wNgij9QK/xPf7h3+hqOGKRq1FwBZHP3Xk/01k35UQXU6pimrCuIe6oDDM4Tnc5Eqb+/Ie0bWEOM2hA=
+  slack:
+    secure: UTOgKuLUWQwP7QX4ic8l0nZARfOcDziTHi48zlgsZg3gKgGTWA1Py7WGMrqoROh6YivGsvUh19bepNvdYvg+thpNdW41JLEx+aMb8gLvIPFUh5WpJpxNUkgI+VYacXGjsHxqrQCscQn4hd6TJjlk4n0FKX2W5ivSEn+79RGl71Y=
