@@ -19,7 +19,7 @@ xlDocker {
 }
 
 version="7.0.0"
-def apiVersion = '2019.3.4'
+def apiVersion = '2019.3.11'
 
 repositories {
     mavenLocal()
@@ -31,8 +31,8 @@ repositories {
 
 dependencies {
     compile "com.xebialabs.deployit:udm-plugin-api:$apiVersion"
-    compile "org.apache.httpcomponents:httpmime:4.5.2"
-    distBundle "org.apache.httpcomponents:httpmime:4.5.2"
+    compile "org.apache.httpcomponents:httpmime:4.5.13"
+    distBundle "org.apache.httpcomponents:httpmime:4.5.13"
 }
 
 
