@@ -8,6 +8,7 @@ from com.xebialabs.deployit.plugin.api.flow import StepExitCode
 from com.xebialabs.deployit.repository import RepositoryServiceHolder
 from com.xebialabs.deployit.repository import WorkDir
 from com.xebialabs.deployit.service.version.exporter import ExporterService
+from com.xebialabs.deployit.checksum import Sha256ChecksumProvider
 from com.xebialabs.overthere.local import LocalConnection
 from com.xebialabs.overthere.local import LocalFile
 from ext.deployit.plugin.xldeploy import PushToServer
@@ -46,7 +47,8 @@ package_id = get_parent_id(bundle_id)
 context.logOutput("Exporting: %s\n" % package_id)
 local_connection = LocalConnection.getLocalConnection()
 repository_service = RepositoryServiceHolder.getRepositoryService()
-export_service = ExporterService(repository_service)
+checksum_provider = Sha256ChecksumProvider()
+export_service = ExporterService(repository_service, checksum_provider)
 
 try:
     working_directory = local_connection.getWorkingDirectory()
