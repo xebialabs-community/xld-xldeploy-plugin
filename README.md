@@ -15,7 +15,7 @@ The XLD XL Deploy plugin is a XL Deploy plugin that adds capabilities to "deploy
 ## Requirements
 
 * **XL Deploy requirements**
-	* **XL Deploy**: version 4.0+
+	* **XL Deploy**: version 9.0+
 	* **Other XL Deploy Plugins**: None
 	* Apache HTTP Client mime jar version 4.2.1 (to match the http libraries already available in XL Deploy)
 
